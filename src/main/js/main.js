@@ -18,7 +18,10 @@ const dm5ready = dm5.init({
   onHttpError
 })
 
-// 2) Create Vue root instance
+// 2) Register store modules
+store.registerModule('search', require('./store/search').default)
+
+// 3) Create Vue root instance
 // Instantiates router-view and dm5-webclient components.
 const root = new Vue({
   el: '#app',
@@ -27,7 +30,8 @@ const root = new Vue({
   render: h => h(App)
 })
 
-// 3) Initial navigation
+/* ### TODO
+// 4) Initial navigation
 // Initial navigation must take place *after* the webclient plugins are loaded.
 // The "workspaces" store module is registered by the Workspaces plugin.
 Promise.all([
@@ -36,7 +40,8 @@ Promise.all([
   dm5ready,
   // Initial navigation might involve "select the 1st workspace", so the workspace
   // topics must be already loaded.
-  store.state.workspaces.ready   // ### TODO
+  store.state.workspaces.ready
 ]).then(() => {
   store.dispatch('initialNavigation')
 })
+*/

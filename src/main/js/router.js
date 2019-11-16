@@ -7,7 +7,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import { MessageBox } from 'element-ui'
-import Webclient from './components/dm5-webclient'
+import Mobile from './components/dm5-mobile'
 import store from './store/mobile'
 import dm5 from 'dm5'
 
@@ -17,32 +17,32 @@ const router = new VueRouter({
   routes: [
     {
       path: '/',
-      component: Webclient
+      component: Mobile
     },
     {
       path: '/topicmap/:topicmapId',
       name: 'topicmap',
-      component: Webclient
+      component: Mobile
     },
     {
       path: '/topicmap/:topicmapId/topic/:topicId',
       name: 'topic',
-      component: Webclient
+      component: Mobile
     },
     {
       path: '/topicmap/:topicmapId/assoc/:assocId',
       name: 'assoc',
-      component: Webclient
+      component: Mobile
     },
     {
       path: '/topicmap/:topicmapId/topic/:topicId/:detail',
       name: 'topicDetail',
-      component: Webclient
+      component: Mobile
     },
     {
       path: '/topicmap/:topicmapId/assoc/:assocId/:detail',
       name: 'assocDetail',
-      component: Webclient
+      component: Mobile
     }
   ]
 })

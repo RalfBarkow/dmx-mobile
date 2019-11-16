@@ -5,8 +5,6 @@ import dm5 from 'dm5'
 
 Vue.use(Vuex)
 
-let compCount = 0
-
 const state = {
 
   object: undefined,        // If there is a single-selection: the selected Topic/Assoc/TopicType/AssocType.
@@ -21,10 +19,6 @@ const state = {
     value: {}               //     typeUri: component
   },                        //   }
 
-  compDefs: {},             // Registered webclient components:
-                            // {
-                            //    mount: [compDef]
-                            // }
   quillConfig: {
     options: {
       theme: 'bubble',
@@ -95,45 +89,6 @@ const actions = {
    */
   registerDetailRenderer (_, {renderer, typeUri, component}) {
     state.detailRenderers[renderer][typeUri] = component
-  },
-
-  registerComponent (_, compDef) {
-    const compDefs = state.compDefs[compDef.mount] || (state.compDefs[compDef.mount] = [])
-    compDef.id = compCount++
-    compDefs.push(compDef)
-  },
-
-  /**
-   * Instantiates and mounts the registered components for mount point "webclient".
-   */
-  mountComponents (_, parent) {
-    state.compDefs.webclient.forEach(compDef => {
-      // 1) init props
-      // Note 1: props must be inited explicitly. E.g. the "detailRenderers" store state is populated while
-      // loading plugins and does not change afterwards. The watcher (see step 3) would not fire as it is
-      // registered *after* the plugins are loaded.
-      // TODO: think about startup order: instantiating the Webclient component vs. loading the plugins.
-      // Note 2: props must be inited *before* the component is instantiated (see step 2). While instantiation
-      // the component receives the declared "default" value (plugin.js), if no value is set already.
-      // The default value must not be overridden by an undefined init value.
-      const propsData = {}
-      for (let prop in compDef.props) {
-        propsData[prop] = compDef.props[prop](store.state)    // call getter function
-      }
-      // 2) instantiate & mount
-      // Note: to manually mounted components the store must be passed explicitly resp. "parent" must be set.
-      // https://forum.vuejs.org/t/this-store-undefined-in-manually-mounted-vue-component/8756
-      const comp = new Vue({parent, propsData, ...compDef.comp}).$mount(`#mount-${compDef.id}`)
-      // 3) make props reactive
-      for (let prop in compDef.props) {
-        watchProp(comp, prop, compDef.props[prop])
-      }
-      // 4) add event listeners
-      for (let eventName in compDef.listeners) {
-        comp.$on(eventName, compDef.listeners[eventName])
-      }
-      // TODO: unregister listeners?
-    })
   },
 
   //
@@ -244,20 +199,4 @@ function _initWritable () {
   state.object.isWritable().then(writable => {
     state.writable = writable
   })
-}
-
-//
-
-function watchProp (comp, prop, getter) {
-  // console.log('watchProp', prop)
-  store.watch(
-    getter,
-    val => {
-      // console.log(`"${prop}" changed`, val)
-      // Note: the top-level webclient components follow the convention of mirroring its "props" through "data".
-      // To avoid the "Avoid mutating a prop directly" Vue warning here we update the data, not the props.
-      // The components name the data like the prop but with an underscore appended.
-      comp[prop + '_'] = val
-    }
-  )
 }
