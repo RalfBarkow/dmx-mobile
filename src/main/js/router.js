@@ -20,27 +20,22 @@ const router = new VueRouter({
       component: Mobile
     },
     {
-      path: '/topicmap/:topicmapId',
-      name: 'topicmap',
-      component: Mobile
-    },
-    {
-      path: '/topicmap/:topicmapId/topic/:topicId',
+      path: '/topic/:topicId',
       name: 'topic',
       component: Mobile
     },
     {
-      path: '/topicmap/:topicmapId/assoc/:assocId',
+      path: '/assoc/:assocId',
       name: 'assoc',
       component: Mobile
     },
     {
-      path: '/topicmap/:topicmapId/topic/:topicId/:detail',
+      path: '/topic/:topicId/:detail',
       name: 'topicDetail',
       component: Mobile
     },
     {
-      path: '/topicmap/:topicmapId/assoc/:assocId/:detail',
+      path: '/assoc/:assocId/:detail',
       name: 'assocDetail',
       component: Mobile
     }
@@ -50,13 +45,9 @@ const router = new VueRouter({
 // use a global guard to perform dirty check
 router.beforeEach((to, from, next) => {
   // Perform a dirty check if all conditions apply:
-  //   - the detail panel is visible (in-map details are NOT dirty checked; TODO?)
   //   - there is a selection (the detail panel is not empty)
-  //   - in the route there is a topicmap change or a selection change (or both)
-  // Note: at router instantiation time the details plugin is not yet initialized
-  // TODO: rethink router instantiation time
-  if (store.state.details && store.state.details.visible && store.state.object &&
-      (topicmapId(to) !== topicmapId(from) || objectId(to) !== objectId(from))) {
+  //   - in the route there is a selection change
+  if (store.state.object && objectId(to) !== objectId(from)) {
     const detailPanel = document.querySelector('.dm5-detail-panel').__vue__
     const isDirty = detailPanel.isDirty()
     // console.log('isDirty', isDirty, store.state.object.id)
@@ -75,7 +66,6 @@ router.beforeEach((to, from, next) => {
           next()
           break;
         case 'close':       // -> Abort Navigation
-          restoreSelection(from)
           next(false)
           break;
         default:
@@ -107,13 +97,6 @@ store.registerModule('routerModule', {
     callRoute (_, location) {
       // console.log('callRoute', location)
       router.push(location)
-    },
-
-    callTopicmapRoute (_, id) {
-      router.push({
-        name: 'topicmap',
-        params: {topicmapId: id}
-      })
     },
 
     callTopicRoute (_, id) {
@@ -226,224 +209,72 @@ function registerRouteWatcher () {
   )
 }
 
+// ### TODO: unify these 2 functions?
+
 /**
  * Sets up initial app state according to start URL.
- * Selects the intial topicmap and workspace, and pushes the initial route if needed.
  */
 function initialNavigation (route) {
   //
   registerRouteWatcher()
   //
-  let urlPresent
-  // 1) select topicmap
+  // 1) topic/assoc selection
   // Note: route params read from URL are strings (may be undefined). Route params set by push() are numbers.
-  let topicmapId = id(route.params.topicmapId)
-  const topicId  = id(route.params.topicId)
-  const assocId  = id(route.params.assocId)
-  if (topicmapId) {
-    // console.log('### Initial navigation (topicmapId, topicId, assocId obtained from URL)', topicmapId, topicId,
-    // assocId)
-    urlPresent = true
-  } else {
-    topicmapId = id(dm5.utils.getCookie('dmx_topicmap_id'))
-    if (topicmapId) {
-      // console.log('### Initial navigation (topicmap ID', topicmapId, 'obtained from cookie)')
-    } else {
-      // console.log('### Initial navigation (no topicmap cookie present)')
-    }
-  }
-  // topicmap validity check
-  let workspaceId   // valid only if topicmapId is defined after validity check
-  let p             // a promise resolved once validity check is complete
-  if (topicmapId) {
-    // console.log(`Checking workspace of topicmap ${topicmapId}`)
-    // Note: get-assigned-workspace responses are not cached by the browser.
-    // In contrast get-topic responses *are* cached by the browser.
-    // Doing get-assigned-workspace first avoids working with stale data.
-    p = getAssignedWorkspace(topicmapId).then(workspace => {
-      // console.log('Workspace retrieved', workspace)
-      workspaceId = workspace.id
-      // console.log(`Retrieving topic ${topicmapId}`)
-      return dm5.restClient.getTopic(topicmapId)
-    }).then(topic => {
-      // console.log('Topic retrieved', topic)
-      if (topic.typeUri !== "dmx.topicmaps.topicmap") {
-        throw Error(`${topicmapId} is not a topicmap (but a ${topic.typeUri})`)
-      }
-    }).catch(error => {
-      console.warn(`Topicmap ${topicmapId} check failed`, error)
-      topicmapId = undefined
-    })
-  } else {
-    p = Promise.resolve()
-  }
-  // 2) select workspace
-  // Note: at this stage a topicmap ID might be available or not. If available it is either obtained from URL or from
-  // cookie. If obtained from URL the route is already up-to-date, no (further) route push is required.
-  // If obtained from cookie or if no topicmapId is available, an initial route still needs to be pushed.
-  p.then(() => {
-    // console.log('[DMX] Initial topicmap/workspace', topicmapId, workspaceId)
-    if (topicmapId) {
-      store.dispatch('_selectWorkspace', workspaceId).then(() => {    // no route push
-        // the workspace's topicmap topics are now available
-        if (urlPresent) {
-          // Note: 'displayTopicmap' relies on the topicmap topics in order to tell what topicmap renderer to use
-          const p = store.dispatch('displayTopicmap', topicmapId)     // no route push
-          topicId !== undefined && fetchTopic(topicId, p)             // Note: 0 is a valid topic ID
-          assocId               && fetchAssoc(assocId, p)
-        } else {
-          // Note: when the topicmap changes '_selectWorkspace' is dispatched again (see navigate() below).
-          // Calling the topicmap route only when the topicmap topics are available avoids loading them twice.
-          // TODO: avoid dispatching '_selectWorkspace' twice in the first place?
-          store.dispatch('callTopicmapRoute', topicmapId)             // push initial route
-        }
-      })
-    } else {
-      store.dispatch('selectFirstWorkspace')                          // push initial route (indirectly)
-    }
-  })
-  // 3) setup detail panel
+  const topicId = id(route.params.topicId)
+  const assocId = id(route.params.assocId)
+  topicId !== undefined && fetchTopic(topicId)                // Note: 0 is a valid topic ID
+  assocId               && fetchAssoc(assocId)
+  // 2) detail panel
   const detail = route.params.detail
   if (detail) {
-    store.dispatch('setDetailPanelVisibility', true)
     store.dispatch('selectDetail', detail)
   }
-  // console.log('### Initial navigation complete!')
 }
 
 /**
  * Adapts app state when route changes.
  */
 function navigate (to, from) {
-  // console.log('navigate', to, from)
-  var p     // a promise resolved once the topicmap rendering is complete
-  // 1) topicmap
-  const topicmapId = id(to.params.topicmapId)
-  const topicmapChanged = topicmapId !== id(from.params.topicmapId)
-  // Note: route params read from URL are strings. Route params set by push() are numbers.
-  if (topicmapChanged) {
-    // Note: the workspace must be set *before* the topicmap is displayed.
-    // See preconditions at "displayTopicmap".
-    p = new Promise(resolve => {
-      getAssignedWorkspace(topicmapId)
-        .then(workspace => store.dispatch('_selectWorkspace', workspace.id))
-        .then(() => store.dispatch('displayTopicmap', topicmapId))
-        .then(resolve)
-    })
-  } else {
-    p = Promise.resolve()
-  }
-  // 2) topic/assoc selection
+  // 1) topic/assoc selection
   const topicId = id(to.params.topicId)
   const assocId = id(to.params.assocId)
   const oldTopicId = id(from.params.topicId)
   const oldAssocId = id(from.params.assocId)
-  const oldId = oldAssocId || oldTopicId        // Note: oldAssocId is checked first as oldId must be a number
-  const newId = assocId    || topicId           // Note: assocId    is checked first as newId must be a number
   const topicChanged = topicId !== oldTopicId
   const assocChanged = assocId !== oldAssocId
-  if ((topicChanged || topicmapChanged) && topicId !== undefined) {             // Note: 0 is a valid topic ID
-    fetchTopic(topicId, p)
+  if (topicChanged && topicId !== undefined) {             // Note: 0 is a valid topic ID
+    fetchTopic(topicId)
   }
-  if ((assocChanged || topicmapChanged) && assocId) {
-    fetchAssoc(assocId, p)
+  if (assocChanged && assocId) {
+    fetchAssoc(assocId)
   }
   if ((topicChanged || assocChanged) && topicId === undefined && !assocId) {    // Note: 0 is a valid topic ID
-    // detail panel
     store.dispatch('emptyDisplay')
-    // topicmap panel
-    if (!topicmapChanged) {
-      p.then(() => store.dispatch('unsetSelection', oldId))
-    }
   }
-  // 3) detail panel
+  // 2) detail panel
   const detail = to.params.detail
   const oldDetail = from.params.detail
-  if (detail != oldDetail) {
-    store.dispatch('setDetailPanelVisibility', detail !== undefined || store.state.details.pinned)
-    if (detail) {
-      store.dispatch('selectDetail', detail)
-      if (!oldDetail && oldId === newId) {
-        store.dispatch('_removeDetail')
-      }
-    }
+  if (detail != oldDetail && detail) {
+    store.dispatch('selectDetail', detail)
   }
 }
 
-const getAssignedWorkspace = dm5.restClient.getAssignedWorkspace
-
 /**
- * Fetches the given topic, displays it in the detail panel, and renders it as selected in the topicmap panel.
- *
- * @param   p   a promise resolved once the topicmap rendering is complete.
+ * Fetches the given topic and displays it in the detail panel.
  */
-function fetchTopic (id, p) {
-  // console.log('requesting topic', id)
-  // detail panel
-  const p2 = dm5.restClient.getTopic(id, true, true).then(topic => {  // includeChildren=true, includeAssocChildren=true
-    // console.log('topic', id, 'arrived')
-    // Note: the topicmap panel manually syncs the selected object with the topicmap renderer.
-    // The "object" state must not be set before a topicmap renderer is instantiated.
-    p.then(() => {
-      store.dispatch('displayObject', topic)
-    })
-  })
-  // topicmap panel
-  p.then(() => {
-    store.dispatch('setTopicSelection', {id, p: p2})
-  }).catch(error => {
-    // FIXME: do not just report the crash! Instead return the promise and attach the error handler at a higher level.
-    // If the topicmap panel fails to render the topic the detail panel is supposed to stay empty.
-    console.error(`Rendering topic ${id} as selected failed`, error)
+function fetchTopic (id) {
+  dm5.restClient.getTopic(id, true, true).then(topic => {       // includeChildren=true, includeAssocChildren=true
+    store.dispatch('displayObject', topic)
   })
 }
 
 /**
- * Fetches the given assoc, displays it in the detail panel, and renders it as selected in the topicmap panel.
- *
- * @param   p   a promise resolved once the topicmap rendering is complete.
+ * Fetches the given assoc and displays it in the detail panel.
  */
-function fetchAssoc (id, p) {
-  // detail panel
-  const p2 = dm5.restClient.getAssoc(id, true, true).then(assoc => {  // includeChildren=true, includeAssocChildren=true
-    // Note: the topicmap panel manually syncs the selected object with the topicmap renderer.
-    // The "object" state must not be set before a topicmap renderer is instantiated.
-    p.then(() => {
-      store.dispatch('displayObject', assoc)
-    })
+function fetchAssoc (id) {
+  dm5.restClient.getAssoc(id, true, true).then(assoc => {       // includeChildren=true, includeAssocChildren=true
+    store.dispatch('displayObject', assoc)
   })
-  // topicmap panel
-  p.then(() => {
-    store.dispatch('setAssocSelection', {id, p: p2})
-  }).catch(error => {
-    // FIXME: do not just report the crash! Instead return the promise and attach the error handler at a higher level.
-    // If the topicmap panel fails to render the assoc the detail panel is supposed to stay empty.
-    console.error(`Rendering assoc ${id} as selected failed`, error)
-  })
-}
-
-const SETTER = {
-  topicDetail: 'setTopic',
-  assocDetail: 'setAssoc'
-}
-
-/**
- * Restores the selection according to the given route
- */
-function restoreSelection (route) {
-  const setter = SETTER[route.name]
-  if (!setter) {
-    throw Error(`unexpected route: "${route.name}"`)
-  }
-  const id = objectId(route)
-  const selection = store.getters.selection
-  // update view
-  selection.forEachId(id => {
-    store.dispatch('_renderAsUnselected', id)
-  })
-  store.dispatch('_renderAsSelected', id)
-  // update model
-  selection[setter](id)
 }
 
 /**
@@ -451,10 +282,6 @@ function restoreSelection (route) {
  */
 function objectId(route) {
   return id(route.params.assocId || route.params.topicId)     // Note: 0 is a valid topic ID; check assoc ID first
-}
-
-function topicmapId(route) {
-  return id(route.params.topicmapId)
 }
 
 /**
