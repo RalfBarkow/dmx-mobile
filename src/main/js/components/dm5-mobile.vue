@@ -7,8 +7,9 @@
         <el-dropdown-item divided>Login</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <dm5-detail-panel :object="object" :quill-config="quillConfig"></dm5-detail-panel>
-    <dm5-search-widget :visible="visible" :menu-topic-types="menuTopicTypes" @topic-reveal="revealTopic" @close="close">
+    <dm5-detail-panel :object="object" :quill-config="quillConfig" no-pin-button></dm5-detail-panel>
+    <dm5-search-widget :visible="visible" :menu-topic-types="menuTopicTypes" width="96%"
+      @topic-reveal="revealTopic" @close="close">
     </dm5-search-widget>
   </div>
 </template>
@@ -58,3 +59,13 @@ export default {
   }
 }
 </script>
+
+<style>
+.dm5-mobile > .el-dropdown {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  font-size: 18px;
+}
+</style>
