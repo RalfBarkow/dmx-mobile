@@ -61,11 +61,22 @@ export default {
 </script>
 
 <style>
+.dm5-mobile {
+  height: 100%;
+  display: flex;
+}
+
+.dm5-mobile .dm5-detail-panel {
+  flex-grow: 1;
+  background-color: var(--background-color);
+}
+
 .dm5-mobile > .el-dropdown {
   position: absolute;
   top: 6px;
   right: 6px;
   z-index: 1;
   font-size: 18px;
+  color: var(--label-color);
 }
 </style>

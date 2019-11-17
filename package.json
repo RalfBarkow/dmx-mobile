@@ -1,6 +1,6 @@
 {
   "name": "dm5-mobile",
-  "version": "0.1.0",
+  "version": "5.0.0",
   "description": "A simple webclient for the DMX platform",
   "author": "Jörg Richter <jri@dmx.berlin>",
   "license": "AGPL-3.0",
