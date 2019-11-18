@@ -1,13 +1,7 @@
 <template>
   <div class="dm5-mobile">
-    <el-dropdown size="medium" trigger="click" @command="handle">
-      <span class="fa fa-bars"></span>
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="openSearchWidget">Search / Create</el-dropdown-item>
-        <el-dropdown-item command="openLoginDialog" divided>Login</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
-    <dm5-login-dialog :visible="loginVisible" @login="login" @close="closeLogin"></dm5-login-dialog>
+    <dm5-main-menu></dm5-main-menu>
+    <dm5-login-dialog :visible="loginVisible" @logged-in="loggedIn" @close="closeLogin"></dm5-login-dialog>
     <dm5-search-widget :visible="searchVisible" :menu-topic-types="menuTopicTypes" width="96%"
       @topic-reveal="revealTopic" @close="closeSearch">
     </dm5-search-widget>
@@ -43,16 +37,12 @@ export default {
 
   methods: {
 
-    handle (command) {
-      this.$store.dispatch(command)
-    },
-
     revealTopic (topic) {
       this.$store.dispatch('callTopicRoute', topic.id)
     },
 
-    login (username) {
-      this.$store.dispatch('login', username)
+    loggedIn (username) {
+      this.$store.dispatch('loggedIn', username)
     },
 
     closeLogin () {
@@ -65,6 +55,7 @@ export default {
   },
 
   components: {
+    'dm5-main-menu':     require('./dm5-main-menu').default,
     'dm5-login-dialog':  require('dm5-login-dialog').default,
     'dm5-search-widget': require('dm5-search-widget').default,
     'dm5-detail-panel':  require('dm5-detail-panel').default
@@ -81,14 +72,5 @@ export default {
 .dm5-mobile .dm5-detail-panel {
   flex-grow: 1;
   background-color: var(--background-color);
-}
-
-.dm5-mobile > .el-dropdown {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 1;
-  font-size: 18px;
-  color: var(--label-color);
 }
 </style>

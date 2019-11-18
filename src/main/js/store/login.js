@@ -7,8 +7,17 @@ const state = {
 
 const actions = {
 
-  login (username) {
-    this.username = username
+  loggedIn (_, username) {
+    console.log('loggedIn', username)
+    state.username = username
+  },
+
+  logout () {
+    console.log('logout', state.username)
+    dm5.restClient.logout().then(() => {
+      dm5.permCache.clear()   // TODO: move to REST client
+      state.username = undefined
+    })
   },
 
   openLoginDialog () {
@@ -28,6 +37,5 @@ export default {
 // init state
 
 dm5.restClient.getUsername().then(username => {
-  console.log('username', username)
   state.username = username
 })
