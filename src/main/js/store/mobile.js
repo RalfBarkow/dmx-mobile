@@ -29,13 +29,13 @@ const state = {
             ['blockquote', 'code-block'],
             [{'list': 'ordered'}, {'list': 'bullet'}],
             [{'header': [1, 2, 3, false]}],
-            ['topic-link', 'link', 'image', 'video']
+            [/* 'topic-link', TODO */ 'link', 'image', 'video']
           ]
         }
       }
     },
     // TODO: allow DMX webclient plugins to provide Quill extensions
-    /* extensions: [    // ### TODO
+    /* extensions: [    // TODO
       require('../topic-link').default
     ] */
   }

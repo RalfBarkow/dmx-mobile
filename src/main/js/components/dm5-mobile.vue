@@ -5,7 +5,8 @@
     <dm5-search-widget :visible="searchVisible" :menu-topic-types="menuTopicTypes" width="96%"
       @topic-reveal="revealTopic" @close="closeSearch">
     </dm5-search-widget>
-    <dm5-detail-panel :object="object" :writable="writable" :quill-config="quillConfig" no-pin-button>
+    <dm5-detail-panel :object="object" :writable="writable" :tab="tab" :mode="mode" :quill-config="quillConfig"
+      no-pin-button @edit="edit" @submit="submit">
     </dm5-detail-panel>
   </div>
 </template>
@@ -21,6 +22,14 @@ export default {
 
     writable () {
       return this.$store.state.writable
+    },
+
+    tab () {
+      return this.$store.state.details.tab
+    },
+
+    mode () {
+      return this.$store.state.details.mode
     },
 
     quillConfig () {
@@ -42,10 +51,6 @@ export default {
 
   methods: {
 
-    revealTopic (topic) {
-      this.$store.dispatch('callTopicRoute', topic.id)
-    },
-
     loggedIn (username) {
       this.$store.dispatch('loggedIn', username)
     },
@@ -54,8 +59,21 @@ export default {
       this.$store.dispatch('closeLoginDialog')
     },
 
+    revealTopic (topic) {
+      this.$store.dispatch('callTopicRoute', topic.id)
+    },
+
     closeSearch () {
       this.$store.dispatch('closeSearchWidget')
+    },
+
+    edit () {
+      this.$store.dispatch('selectDetail', 'edit')
+    },
+
+    submit (object) {
+      this.$store.dispatch('submit', object)
+      this.$store.dispatch('selectDetail', 'info')
     }
   },
 
