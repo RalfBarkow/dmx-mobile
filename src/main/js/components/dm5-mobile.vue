@@ -4,13 +4,14 @@
       <span class="fa fa-bars"></span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="openSearchWidget">Search / Create</el-dropdown-item>
-        <el-dropdown-item divided>Login</el-dropdown-item>
+        <el-dropdown-item command="openLoginDialog" divided>Login</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <dm5-detail-panel :object="object" :quill-config="quillConfig" no-pin-button></dm5-detail-panel>
-    <dm5-search-widget :visible="visible" :menu-topic-types="menuTopicTypes" width="96%"
-      @topic-reveal="revealTopic" @close="close">
+    <dm5-login-dialog :visible="loginVisible" @login="login" @close="closeLogin"></dm5-login-dialog>
+    <dm5-search-widget :visible="searchVisible" :menu-topic-types="menuTopicTypes" width="96%"
+      @topic-reveal="revealTopic" @close="closeSearch">
     </dm5-search-widget>
+    <dm5-detail-panel :object="object" :quill-config="quillConfig" no-pin-button></dm5-detail-panel>
   </div>
 </template>
 
@@ -27,7 +28,11 @@ export default {
       return this.$store.state.quillConfig
     },
 
-    visible () {
+    loginVisible () {
+      return this.$store.state.login.visible
+    },
+
+    searchVisible () {
       return this.$store.state.search.visible
     },
 
@@ -39,23 +44,30 @@ export default {
   methods: {
 
     handle (command) {
-      if (command) {
-        this.$store.dispatch(command)
-      }
+      this.$store.dispatch(command)
     },
 
     revealTopic (topic) {
       this.$store.dispatch('callTopicRoute', topic.id)
     },
 
-    close () {
+    login (username) {
+      this.$store.dispatch('login', username)
+    },
+
+    closeLogin () {
+      this.$store.dispatch('closeLoginDialog')
+    },
+
+    closeSearch () {
       this.$store.dispatch('closeSearchWidget')
     }
   },
 
   components: {
-    'dm5-detail-panel':  require('dm5-detail-panel').default,
-    'dm5-search-widget': require('dm5-search-widget').default
+    'dm5-login-dialog':  require('dm5-login-dialog').default,
+    'dm5-search-widget': require('dm5-search-widget').default,
+    'dm5-detail-panel':  require('dm5-detail-panel').default
   }
 }
 </script>

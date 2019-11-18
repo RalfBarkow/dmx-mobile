@@ -8,7 +8,7 @@ import 'font-awesome/css/font-awesome.css'
 import './element-ui'
 // import './websocket'   // ### TODO
 
-console.log('[DMX] 2019/11/17')
+console.log('[DMX Mobile] 2019/11/18')
 
 // 1) Init dm5 library
 // The dm5 library must be inited *before* the dm5-webclient component is instantiated.
@@ -19,8 +19,9 @@ const dm5ready = dm5.init({
 })
 
 // 2) Register store modules
-store.registerModule('details', require('./store/details').default)
+store.registerModule('login',   require('./store/login').default)
 store.registerModule('search',  require('./store/search').default)
+store.registerModule('details', require('./store/details').default)
 
 // 3) Create Vue root instance
 // Instantiates router-view and dm5-webclient components.
