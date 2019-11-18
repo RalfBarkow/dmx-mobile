@@ -12,11 +12,12 @@ const actions = {
     state.username = username
   },
 
-  logout () {
+  logout ({dispatch}) {
     console.log('logout', state.username)
     dm5.restClient.logout().then(() => {
       dm5.permCache.clear()   // TODO: move to REST client
       state.username = undefined
+      dispatch('loggedOut')
     })
   },
 

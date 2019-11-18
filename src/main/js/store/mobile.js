@@ -93,14 +93,13 @@ const actions = {
 
   //
 
-  /* ### TODO
   loggedIn () {
     initWritable()
   },
 
   loggedOut () {
     initWritable()
-  }, */
+  },
 
   // WebSocket messages
 
