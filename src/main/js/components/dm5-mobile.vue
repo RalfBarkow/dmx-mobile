@@ -6,7 +6,7 @@
       @topic-reveal="revealTopic" @close="closeSearch">
     </dm5-search-widget>
     <dm5-detail-panel :object="object" :writable="writable" :tab="tab" :mode="mode" :quill-config="quillConfig"
-      no-pin-button @edit="edit" @submit="submit">
+      no-pin-button @tab-click="tabClick" @edit="edit" @submit="submit">
     </dm5-detail-panel>
   </div>
 </template>
@@ -65,6 +65,21 @@ export default {
 
     closeSearch () {
       this.$store.dispatch('closeSearchWidget')
+    },
+
+    tabClick (tab) {
+      let detail = tab
+      // clicking 1st tab while in form mode
+      if (tab === 'info' && this.mode === 'form') {
+        // 1st tab is selected already -> no-op
+        if (this.tab === 'info') {
+          return
+        }
+        // another tab is currently selected -> resume editing
+        detail = 'edit'
+      }
+      //
+      this.$store.dispatch('selectDetail', detail)
     },
 
     edit () {
