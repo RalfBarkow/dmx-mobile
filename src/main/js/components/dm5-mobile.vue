@@ -6,7 +6,8 @@
       @topic-reveal="revealTopic" @close="closeSearch">
     </dm5-search-widget>
     <dm5-detail-panel :object="object" :writable="writable" :tab="tab" :mode="mode" :quill-config="quillConfig"
-      no-pin-button @tab-click="tabClick" @edit="edit" @submit="submit">
+      no-pin-button @tab-click="tabClick" @edit="edit" @submit="submit" @child-topic-reveal="revealTopic"
+      @related-topic-click="revealTopic" @related-icon-click="revealTopic">
     </dm5-detail-panel>
   </div>
 </template>
