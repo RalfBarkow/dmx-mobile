@@ -6,8 +6,8 @@
       @topic-reveal="revealTopic" @close="closeSearch">
     </dm5-search-widget>
     <dm5-detail-panel :object="object" :writable="writable" :tab="tab" :mode="mode" :quill-config="quillConfig"
-      no-pin-button @tab-click="tabClick" @edit="edit" @submit="submit" @child-topic-reveal="revealTopic"
-      @related-topic-click="revealTopic" @related-icon-click="revealTopic">
+      no-pin-button @tab-click="tabClick" @edit="edit" @submit="submit" @submit-inline="submitInline"
+      @child-topic-reveal="revealTopic" @related-topic-click="revealTopic" @related-icon-click="revealTopic">
     </dm5-detail-panel>
   </div>
 </template>
@@ -90,6 +90,10 @@ export default {
     submit (object) {
       this.$store.dispatch('submit', object)
       this.$store.dispatch('selectDetail', 'info')
+    },
+
+    submitInline (object) {
+      this.$store.dispatch('submit', object)
     }
   },
 
