@@ -8,7 +8,7 @@ import 'font-awesome/css/font-awesome.css'
 import './element-ui'
 // import './websocket'   // ### TODO
 
-console.log('[DMX Mobile] 2019/11/19')
+console.log('[DMX Mobile] 2019/11/20')
 
 // 1) Init dm5 library
 // The dm5 library must be inited *before* the dm5-webclient component is instantiated.
@@ -23,7 +23,21 @@ store.registerModule('login',   require('./store/login').default)
 store.registerModule('search',  require('./store/search').default)
 store.registerModule('details', require('./store/details').default)
 
-// 3) Create Vue root instance
+// 3) Register store watcher
+store.watch(
+  state => state.login.username,
+  username => {
+    if (username) {
+      dm5.restClient.getPrivateWorkspace().then(workspace => {
+        dm5.utils.setCookie('dmx_workspace_id', workspace.id)
+      })
+    } else {
+      dm5.utils.deleteCookie('dmx_workspace_id')
+    }
+  }
+)
+
+// 4) Create Vue root instance
 // Instantiates router-view and dm5-webclient components.
 const root = new Vue({
   el: '#app',
@@ -32,7 +46,7 @@ const root = new Vue({
   render: h => h(App)
 })
 
-// 4) Initial navigation
+// 5) Initial navigation
 // Initial navigation must take place *after* the webclient plugins are loaded.
 // The "workspaces" store module is registered by the Workspaces plugin.
 Promise.all([
