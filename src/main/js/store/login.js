@@ -1,8 +1,8 @@
 import dm5 from 'dm5'
 
 const state = {
-  username: undefined,      // logged in user (string); falsish if no user is logged in
-  visible: false,           // login dialog visibility
+  username: '',       // logged in user (string); empty string if no user is logged in
+  visible: false,     // login dialog visibility
 }
 
 const actions = {
@@ -15,7 +15,7 @@ const actions = {
   logout ({dispatch}) {
     console.log('logout', state.username)
     dm5.restClient.logout().then(() => {
-      state.username = undefined
+      state.username = ''
       dispatch('loggedOut')
     })
   },
