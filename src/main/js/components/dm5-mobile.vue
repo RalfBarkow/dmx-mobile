@@ -3,7 +3,7 @@
     <dm5-main-menu></dm5-main-menu>
     <dm5-login-dialog :visible="loginVisible" @logged-in="loggedIn" @close="closeLogin"></dm5-login-dialog>
     <dm5-search-widget :visible="searchVisible" :create-enabled="createEnabled" :menu-topic-types="menuTopicTypes"
-      width="96%" @topic-reveal="revealTopic" @close="closeSearch">
+      width="96%" @topic-reveal="revealTopic" @topic-create="createTopic" @close="closeSearch">
     </dm5-search-widget>
     <dm5-detail-panel :object="object" :writable="writable" :tab="tab" :mode="mode" :quill-config="quillConfig"
       no-pin-button @tab-click="tabClick" @edit="edit" @submit="submit" @submit-inline="submitInline"
@@ -66,6 +66,10 @@ export default {
 
     revealTopic (topic) {
       this.$store.dispatch('callTopicRoute', topic.id)
+    },
+
+    createTopic ({topicType, value}) {
+      this.$store.dispatch('createTopic', {topicType, value})
     },
 
     closeSearch () {

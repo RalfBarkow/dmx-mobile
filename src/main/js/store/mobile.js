@@ -60,6 +60,17 @@ const actions = {
     })
   },
 
+  createTopic ({dispatch}, {topicType, value}) {
+    // Note: for value integration to work at least all identity fields must be filled
+    const topicModel = new dm5.Topic(topicType.newTopicModel(value)).fillChildren()
+    // console.log('createTopic', topicModel)
+    dm5.restClient.createTopic(topicModel).then(topic => {
+      console.log('Created', topic)
+      dispatch('callTopicRoute', topic.id)
+      dispatch('_processDirectives', topic.directives)
+    })
+  },
+
   deleteMulti ({dispatch}, idLists) {
     confirmDeletion(idLists).then(() => {
       // console.log('deleteMulti', idLists.topicIds, idLists.assocIds)
