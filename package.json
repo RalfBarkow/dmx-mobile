@@ -15,6 +15,7 @@
   "dependencies": {
     "dm5": "https://github.com/jri/dm5.git",
     "dm5-detail-panel": "https://github.com/jri/dm5-detail-panel.git",
+    "dm5-login-dialog": "https://github.com/jri/dm5-login-dialog.git",
     "dm5-object-renderer": "https://github.com/jri/dm5-object-renderer.git",
     "dm5-search-widget": "https://github.com/jri/dm5-search-widget.git",
     "dm5-topic-list": "https://github.com/jri/dm5-topic-list.git",
