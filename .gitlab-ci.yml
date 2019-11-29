@@ -20,6 +20,7 @@ copy-to-ci:
     - if [ ! -d  ${DESTDIR} ]; then mkdir ${DESTDIR}; fi
     - cp target/${JARFILE} ${DESTDIR}/${DESTJARFILE}
     - ln -sf  ${DESTDIR}/${DESTJARFILE} ${DESTDIR}/${CI_PROJECT_NAME}-latest.jar
+    - docker cp -L /var/www/download.dmx.systems/ci/dmx-mobile/dmx-mobile-latest.jar dmx-dev-container:/usr/share/dmx/bundle-deploy/
   dependencies:
     - maven-build
   only:
