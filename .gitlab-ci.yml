@@ -7,6 +7,9 @@ maven-build:
     paths:
       - target/*.jar
     name: ${CI_PROJECT_NAME}-${CI_COMMIT_SHORT_SHA}
+  cache:
+    paths:
+      - node_modules/
 
 # 2) Copies SNAPSHOT builds on 'master' branch into download.dmx.systems/ci/ directory
 copy-to-ci:
