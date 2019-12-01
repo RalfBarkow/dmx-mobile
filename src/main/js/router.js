@@ -17,6 +17,7 @@ const router = new VueRouter({
   routes: [
     {
       path: '/',
+      name: 'default',
       component: Mobile
     },
     {
@@ -109,7 +110,7 @@ store.registerModule('routerModule', {
 
     stripSelectionFromRoute () {
       router.push({
-        name: 'topicmap'
+        name: 'default'
       })
     },
 

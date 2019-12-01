@@ -7,9 +7,8 @@ Vue.use(Vuex)
 
 const state = {
 
-  object: undefined,        // If there is a single-selection: the selected Topic/Assoc/TopicType/AssocType.
-                            // This object is displayed in detail panel or as in-map details. Its ID appears in the
-                            // browser URL.
+  object: undefined,        // The selected Topic/Assoc/TopicType/AssocType.
+                            // This object is displayed in detail panel. Its ID appears in the browser URL.
                             // Undefined if there is no selection or a multi-selection.
 
   writable: undefined,      // True if the current user has WRITE permission for the selected object.
@@ -86,15 +85,6 @@ const actions = {
 
   // ---
 
-  unselectIf ({dispatch}, id) {
-    // console.log('unselectIf', id, isSelected(id))
-    if (isSelected(id)) {
-      dispatch('stripSelectionFromRoute')
-    }
-  },
-
-  // ---
-
   /**
    * @param   render    "object" or "value"
    */
@@ -114,7 +104,7 @@ const actions = {
 
   // WebSocket messages
 
-  _processDirectives ({dispatch}, directives) {
+  _processDirectives (_, directives) {
     console.log(`Webclient: processing ${directives.length} directives`, directives)
     directives.forEach(dir => {
       switch (dir.type) {
@@ -122,13 +112,13 @@ const actions = {
         displayObjectIf(new dm5.Topic(dir.arg))
         break
       case "DELETE_TOPIC":
-        dispatch('unselectIf', dir.arg.id)
+        unselectIf(dir.arg.id)
         break
       case "UPDATE_ASSOCIATION":
         displayObjectIf(new dm5.Assoc(dir.arg))
         break
       case "DELETE_ASSOCIATION":
-        dispatch('unselectIf', dir.arg.id)
+        unselectIf(dir.arg.id)
         break
       }
     })
@@ -165,6 +155,13 @@ export default store
 function displayObjectIf (object) {
   if (isSelected(object.id)) {
     store.dispatch('displayObject', object)
+  }
+}
+
+function unselectIf (id) {
+  // console.log('unselectIf', id, isSelected(id))
+  if (isSelected(id)) {
+    store.dispatch('stripSelectionFromRoute')
   }
 }
 

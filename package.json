@@ -20,7 +20,7 @@
     "dm5-search-widget": "https://github.com/jri/dm5-search-widget.git",
     "dm5-topic-list": "https://github.com/jri/dm5-topic-list.git",
     "dm5-websocket": "0.4.0",
-    "element-ui": "^2.12.0",
+    "element-ui": "^2.13.0",
     "font-awesome": "^4.7.0",
     "vue": "^2.6.10",
     "vue-router": "3.0.7",

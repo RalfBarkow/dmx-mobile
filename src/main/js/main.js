@@ -6,9 +6,9 @@ import router from './router'
 import onHttpError from './error-handler'
 import 'font-awesome/css/font-awesome.css'
 import './element-ui'
-// import './websocket'   // ### TODO
+import './websocket'
 
-console.log('[DMX Mobile] 2019/11/30')
+console.log('[DMX Mobile] 2019/12/01')
 
 // 1) Init dm5 library
 // The dm5 library must be inited *before* the dm5-webclient component is instantiated.
